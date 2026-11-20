@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -31,7 +32,7 @@
       margin: 0;
       padding: 0;
       background-color: var(--bg-color);
-      background-image: 
+      background-image:
         radial-gradient(circle at 50% 15%, rgba(0, 150, 255, 0.18) 0%, transparent 60%),
         linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px);
@@ -115,7 +116,9 @@
       gap: 4px;
       transition: all 0.2s;
     }
-    .btn-header:hover, .btn-header:active {
+
+    .btn-header:hover,
+    .btn-header:active {
       border-color: var(--primary);
       color: #fff;
     }
@@ -127,13 +130,21 @@
       flex: 1;
       animation: fadeIn 0.25s ease;
     }
+
     .screen.active {
       display: flex;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* タイトル & パイロットカード */
@@ -182,7 +193,7 @@
       right: 0;
       width: 80px;
       height: 80px;
-      background: radial-gradient(circle, rgba(0,229,255,0.2) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(0, 229, 255, 0.2) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -440,7 +451,7 @@
       justify-content: center;
       min-height: 155px;
       overflow: hidden;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
     }
 
     .enemy-meta-row {
@@ -506,11 +517,26 @@
     }
 
     @keyframes enemyDamage {
-      0% { transform: scale(1) rotate(0deg); filter: brightness(3) drop-shadow(0 0 25px #ff0055); }
-      20% { transform: scale(1.18) rotate(-7deg) translateX(-8px); }
-      40% { transform: scale(0.88) rotate(7deg) translateX(8px); }
-      60% { transform: scale(1.08) rotate(-3deg); }
-      100% { transform: scale(1) rotate(0deg); }
+      0% {
+        transform: scale(1) rotate(0deg);
+        filter: brightness(3) drop-shadow(0 0 25px #ff0055);
+      }
+
+      20% {
+        transform: scale(1.18) rotate(-7deg) translateX(-8px);
+      }
+
+      40% {
+        transform: scale(0.88) rotate(7deg) translateX(8px);
+      }
+
+      60% {
+        transform: scale(1.08) rotate(-3deg);
+      }
+
+      100% {
+        transform: scale(1) rotate(0deg);
+      }
     }
 
     .attack-slash {
@@ -529,9 +555,20 @@
     }
 
     @keyframes slashAnim {
-      0% { transform: rotate(-35deg) scaleX(0); opacity: 1; }
-      50% { transform: rotate(-35deg) scaleX(1); opacity: 1; }
-      100% { transform: rotate(-35deg) scaleX(1.2); opacity: 0; }
+      0% {
+        transform: rotate(-35deg) scaleX(0);
+        opacity: 1;
+      }
+
+      50% {
+        transform: rotate(-35deg) scaleX(1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: rotate(-35deg) scaleX(1.2);
+        opacity: 0;
+      }
     }
 
     /* 出題エリア */
@@ -605,7 +642,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
       touch-action: manipulation;
     }
 
@@ -622,6 +659,7 @@
       font-size: 1rem;
       font-weight: bold;
     }
+
     .key-clear:active {
       background: #ff0055;
       color: #fff;
@@ -634,6 +672,7 @@
       font-size: 1.1rem;
       font-weight: 900;
     }
+
     .key-enter:active {
       background: #00ff88;
       color: #000;
@@ -687,13 +726,19 @@
       padding: 20px;
       animation: modalFadeIn 0.3s ease;
     }
+
     .level-up-modal.active {
       display: flex;
     }
 
     @keyframes modalFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     .level-up-box {
@@ -709,15 +754,22 @@
     }
 
     @keyframes popBounce {
-      0% { transform: scale(0.5); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
+      0% {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     .level-up-badge {
       font-size: 1.5rem;
       font-weight: 900;
       color: #ffd700;
-      text-shadow: 0 0 15px rgba(255,215,0,0.8);
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
       margin-bottom: 6px;
     }
 
@@ -849,6 +901,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <!-- ヘッダー -->
@@ -871,7 +924,8 @@
     <!-- ① タイトル / モード選択画面 -->
     <div id="titleScreen" class="screen active">
       <div class="title-banner">
-        <div class="sub-badge">⚔️ <ruby>小<rt>しょう</rt>学<rt>がく</rt></ruby>２<ruby>年<rt>ねん</rt>生<rt>せい</rt></ruby>むけ！ レベルアップ<ruby>版<rt>ばん</rt></ruby> ⚔️</div>
+        <div class="sub-badge">⚔️ <ruby>小<rt>しょう</rt>学<rt>がく</rt></ruby>２<ruby>年<rt>ねん</rt>生<rt>せい</rt></ruby>むけ！
+          レベルアップ<ruby>版<rt>ばん</rt></ruby> ⚔️</div>
         <div class="main-logo">超・九九戦記<br><span style="color:var(--primary); font-size:1.7rem;">BATTLE 9</span></div>
       </div>
 
@@ -891,7 +945,8 @@
         <!-- 経験値バー -->
         <div class="exp-container">
           <div class="exp-text-row">
-            <span>EXP: <strong id="pilotExpCur" style="color:#fff;">0</strong> / <span id="pilotExpNext">100</span></span>
+            <span>EXP: <strong id="pilotExpCur" style="color:#fff;">0</strong> / <span
+                id="pilotExpNext">100</span></span>
             <span id="pilotExpPercent">0%</span>
           </div>
           <div class="exp-bar-bg">
@@ -922,7 +977,8 @@
         <button class="mode-btn" id="startAttackBtn">
           <div class="mode-btn-content">
             <div class="mode-btn-title">⏱️ 60<ruby>秒<rt>びょう</rt></ruby> タイムアタック！</div>
-            <div class="mode-btn-desc">60<ruby>秒<rt>びょう</rt></ruby>で なん<ruby>体<rt>たい</rt></ruby><ruby>倒<rt>たお</rt></ruby>せるか？ 大量EXPゲット！</div>
+            <div class="mode-btn-desc">60<ruby>秒<rt>びょう</rt></ruby>で なん<ruby>体<rt>たい</rt></ruby><ruby>倒<rt>たお</rt>
+                </ruby>せるか？ 大量EXPゲット！</div>
           </div>
           <div style="font-size:1.7rem;">⚡</div>
         </button>
@@ -947,6 +1003,14 @@
 
     <!-- ② バトル画面 -->
     <div id="battleScreen" class="screen">
+      <!-- タイトルへ戻るボタン -->
+      <div style="display: flex; justify-content: flex-start; margin-bottom: 6px;">
+        <button id="inBattleQuitBtn" class="btn-header"
+          style="background: #142236; color: #9bb7d4; border-color: #244166; padding: 5px 12px; font-weight: bold;">
+          ← 🏠 <ruby>タイトルへ<rt>たいとるへ</rt></ruby> <ruby>戻<rt>もど</rt></ruby>る
+        </button>
+      </div>
+
       <div class="battle-header">
         <div class="stat-pill">
           <span class="stat-label" id="modeInfoLabel"><ruby>問題<rt>もんだい</rt></ruby></span>
@@ -1426,6 +1490,7 @@
       feedbackToast: document.getElementById('feedbackToast'),
       retryBtn: document.getElementById('retryBtn'),
       backToTitleBtn: document.getElementById('backToTitleBtn'),
+      inBattleQuitBtn: document.getElementById('inBattleQuitBtn'),
       resultRankBadge: document.getElementById('resultRankBadge'),
       resultTitle: document.getElementById('resultTitle'),
       resultSubtitle: document.getElementById('resultSubtitle'),
@@ -1458,8 +1523,8 @@
 
       dom.statTotalAttempts.textContent = `${UserData.totalAttempts}回`;
 
-      const acc = UserData.totalQuestions > 0 
-        ? Math.round((UserData.totalCorrect / UserData.totalQuestions) * 100) 
+      const acc = UserData.totalQuestions > 0
+        ? Math.round((UserData.totalCorrect / UserData.totalQuestions) * 100)
         : 0;
       dom.statAccuracy.textContent = `${acc}%`;
       dom.statMaxCombo.textContent = UserData.highestCombo;
@@ -1534,6 +1599,15 @@
       clearInterval(State.timerInterval);
       updatePilotStatusUI();
       switchScreen(dom.titleScreen);
+    });
+
+    dom.inBattleQuitBtn.addEventListener('click', () => {
+      sound.init();
+      if (confirm('バトルをやめて、タイトル画面にもどる？')) {
+        clearInterval(State.timerInterval);
+        updatePilotStatusUI();
+        switchScreen(dom.titleScreen);
+      }
     });
 
     dom.modalCloseBtn.addEventListener('click', () => {
@@ -1625,7 +1699,7 @@
       // 敵の種類を進行度やレベルでローテーション
       const speciesIdx = questionIdx % ENEMY_SPECIES.length;
       const themeIdx = (questionIdx + UserData.level) % COLOR_THEMES.length;
-      
+
       const species = ENEMY_SPECIES[speciesIdx];
       const theme = COLOR_THEMES[themeIdx];
 
@@ -1718,7 +1792,7 @@
       if (State.inputBuffer === '') return;
       State.roundAttempts++;
       const userAns = parseInt(State.inputBuffer, 10);
-      
+
       // 段ごとの記録集計用
       const currentDan = State.qNum1;
       if (!UserData.danStats[currentDan]) {
@@ -1850,8 +1924,8 @@
           subtitle = 'ナイスバトル！さらに上のランクをめざそう！';
         }
       } else {
-        const accuracy = State.roundAttempts > 0 
-          ? Math.round((State.correctCount / State.roundAttempts) * 100) 
+        const accuracy = State.roundAttempts > 0
+          ? Math.round((State.correctCount / State.roundAttempts) * 100)
           : 100;
         dom.resCorrect.textContent = `${State.correctCount}問 (${accuracy}%)`;
         dom.resTime.textContent = `${elapsedSec}秒`;
@@ -1895,4 +1969,5 @@
     updatePilotStatusUI();
   </script>
 </body>
+
 </html>
