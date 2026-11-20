@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>超九九戦記 バトルナイン - レベルアップエディション</title>
+  <style>
+    :root {
+      --bg-color: #070d19;
+      --card-bg: rgba(13, 27, 42, 0.92);
+      --primary: #00e5ff;
+      --primary-glow: rgba(0, 229, 255, 0.45);
+      --secondary: #ff0055;
+      --secondary-glow: rgba(255, 0, 85, 0.4);
+      --accent: #ffd700;
+      --accent-glow: rgba(255, 215, 0, 0.45);
+      --success: #00ff66;
+      --text: #e6f1ff;
+      --text-dim: #7f9bb3;
+      --border: #1e3a5f;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(circle at 50% 15%, rgba(0, 150, 255, 0.18) 0%, transparent 60%),
+        linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 30px 30px, 30px 30px;
+      color: var(--text);
+      font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-x: hidden;
+    }
+
+    ruby rt {
+      font-size: 0.58em;
+      color: var(--primary);
+      font-weight: normal;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 540px;
+      padding: 10px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ヘッダー */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .logo-icon {
+      font-size: 1.4rem;
+      filter: drop-shadow(0 0 6px var(--primary));
+    }
+
+    .game-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #ffffff 20%, var(--primary) 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-header {
+      background: #112233;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      border-radius: 8px;
+      padding: 5px 9px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .btn-header:hover, .btn-header:active {
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    /* 画面切り替え共通 */
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      animation: fadeIn 0.25s ease;
+    }
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* タイトル & パイロットカード */
+    .title-banner {
+      text-align: center;
+      padding: 8px 4px;
+    }
+
+    .sub-badge {
+      display: inline-block;
+      background: linear-gradient(90deg, #ff0055, #ff5500);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-bottom: 4px;
+      box-shadow: 0 0 10px rgba(255, 0, 85, 0.4);
+    }
+
+    .main-logo {
+      font-size: 2.1rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 15px var(--primary);
+      margin: 2px 0;
+      line-height: 1.15;
+    }
+
+    /* パイロットステータスカード（成績集計・Lv） */
+    .pilot-card {
+      background: linear-gradient(135deg, rgba(16, 36, 64, 0.95) 0%, rgba(8, 18, 33, 0.95) 100%);
+      border: 2px solid #234d7d;
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 229, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pilot-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(0,229,255,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .pilot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .pilot-level-badge {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .level-label {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+
+    .level-number {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #fff;
+      font-family: monospace;
+      text-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .pilot-title-tag {
+      background: linear-gradient(90deg, #1f4269, #132a48);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 0 8px var(--primary-glow);
+    }
+
+    /* EXPバー */
+    .exp-container {
+      margin-bottom: 10px;
+    }
+
+    .exp-text-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-bottom: 3px;
+    }
+
+    .exp-bar-bg {
+      width: 100%;
+      height: 9px;
+      background: #091322;
+      border: 1px solid #1e3d64;
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .exp-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00e5ff, #00ff88);
+      box-shadow: 0 0 8px var(--primary);
+      transition: width 0.4s ease;
+    }
+
+    /* 成績サマリーグリッド */
+    .stats-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background: rgba(4, 10, 20, 0.6);
+      border-radius: 8px;
+      padding: 8px;
+      border: 1px solid #142842;
+    }
+
+    .stat-mini-box {
+      text-align: center;
+    }
+
+    .stat-mini-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .stat-mini-val {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #fff;
+      font-family: monospace;
+    }
+
+    /* カード */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-title {
+      font-size: 0.92rem;
+      font-weight: bold;
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+      padding-bottom: 4px;
+    }
+
+    .mode-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #13243a 0%, #1f3b5c 100%);
+      border: 1px solid #325a88;
+      border-radius: 12px;
+      color: #fff;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .mode-btn:active {
+      transform: translateY(-1px);
+      border-color: var(--primary);
+      box-shadow: 0 0 14px var(--primary-glow);
+    }
+
+    .mode-btn-content {
+      text-align: left;
+    }
+
+    .mode-btn-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .mode-btn-desc {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .dan-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .dan-btn {
+      background: #11253e;
+      border: 1px solid #284c77;
+      color: #fff;
+      padding: 8px 2px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .dan-btn:active {
+      background: #1c3c66;
+      border-color: var(--primary);
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+
+    .dan-badge {
+      font-size: 0.62rem;
+      color: var(--primary);
+      margin-top: 1px;
+    }
+
+    .dan-rate {
+      font-size: 0.58rem;
+      color: var(--success);
+      margin-top: 1px;
+    }
+
+    /* バトル画面 */
+    .battle-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px 12px;
+      margin-bottom: 6px;
+    }
+
+    .stat-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-label {
+      font-size: 0.62rem;
+      color: var(--text-dim);
+    }
+
+    .stat-value {
+      font-size: 1.15rem;
+      font-weight: 900;
+      font-family: monospace;
+      color: #fff;
+    }
+
+    .combo-pill .stat-value {
+      color: var(--accent);
+      text-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .timer-pill .stat-value {
+      color: #ff5555;
+    }
+
+    /* 敵ステージ */
+    .enemy-stage {
+      position: relative;
+      background: radial-gradient(circle at 50% 65%, rgba(0, 229, 255, 0.16) 0%, rgba(5, 12, 22, 0.98) 80%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      margin-bottom: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 155px;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .enemy-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0 8px;
+      margin-bottom: 4px;
+    }
+
+    .enemy-name {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .enemy-type-tag {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #11253e;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .hp-bar-bg {
+      width: 90%;
+      height: 7px;
+      background: #101c2b;
+      border-radius: 4px;
+      border: 1px solid #234567;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .hp-bar-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #ff0055, #00ff66);
+      transition: width 0.25s ease;
+    }
+
+    .enemy-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 95px;
+      width: 100%;
+    }
+
+    .enemy-robot {
+      transition: transform 0.1s ease;
+      filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));
+    }
+
+    .enemy-robot.hit {
+      animation: enemyDamage 0.4s ease;
+    }
+
+    @keyframes enemyDamage {
+      0% { transform: scale(1) rotate(0deg); filter: brightness(3) drop-shadow(0 0 25px #ff0055); }
+      20% { transform: scale(1.18) rotate(-7deg) translateX(-8px); }
+      40% { transform: scale(0.88) rotate(7deg) translateX(8px); }
+      60% { transform: scale(1.08) rotate(-3deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    .attack-slash {
+      position: absolute;
+      width: 150%;
+      height: 5px;
+      background: #fff;
+      box-shadow: 0 0 15px #00e5ff, 0 0 30px #00e5ff;
+      transform: rotate(-35deg) scaleX(0);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .attack-slash.active {
+      animation: slashAnim 0.3s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+    }
+
+    @keyframes slashAnim {
+      0% { transform: rotate(-35deg) scaleX(0); opacity: 1; }
+      50% { transform: rotate(-35deg) scaleX(1); opacity: 1; }
+      100% { transform: rotate(-35deg) scaleX(1.2); opacity: 0; }
+    }
+
+    /* 出題エリア */
+    .question-box {
+      background: #0d1e33;
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 18px rgba(0, 229, 255, 0.3);
+      border-radius: 12px;
+      padding: 8px;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .math-formula {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #fff;
+      font-family: monospace;
+    }
+
+    .math-operator {
+      color: var(--accent);
+      text-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .answer-display {
+      min-width: 85px;
+      height: 50px;
+      background: #06111f;
+      border: 2px dashed #00e5ff;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #00ffcc;
+      font-size: 2.1rem;
+      font-weight: bold;
+    }
+
+    .answer-display.empty {
+      color: #3b5f7e;
+    }
+
+    .kuku-voice-hint {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      margin-top: 3px;
+      font-weight: bold;
+    }
+
+    /* テンキーエリア */
+    .keypad-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .num-key {
+      background: linear-gradient(145deg, #152b45, #102136);
+      border: 1px solid #2a527c;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.8rem;
+      font-weight: 900;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      touch-action: manipulation;
+    }
+
+    .num-key:active {
+      transform: translateY(2px);
+      background: #00e5ff;
+      color: #000;
+    }
+
+    .key-clear {
+      background: linear-gradient(145deg, #3d1b28, #2a111a);
+      border-color: #7a2741;
+      color: #ff5577;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+    .key-clear:active {
+      background: #ff0055;
+      color: #fff;
+    }
+
+    .key-enter {
+      background: linear-gradient(145deg, #0f4b32, #0a3322);
+      border-color: #198055;
+      color: #00ff88;
+      font-size: 1.1rem;
+      font-weight: 900;
+    }
+    .key-enter:active {
+      background: #00ff88;
+      color: #000;
+    }
+
+    .feedback-toast {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.6);
+      padding: 8px 22px;
+      border-radius: 30px;
+      font-size: 1.7rem;
+      font-weight: 900;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+      transition: all 0.25s ease;
+    }
+
+    .feedback-toast.correct {
+      background: rgba(0, 255, 102, 0.95);
+      color: #000;
+      box-shadow: 0 0 25px #00ff66;
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .feedback-toast.wrong {
+      background: rgba(255, 0, 85, 0.95);
+      color: #fff;
+      box-shadow: 0 0 25px #ff0055;
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    /* レベルアップモーダル演出 */
+    .level-up-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 5, 15, 0.88);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      animation: modalFadeIn 0.3s ease;
+    }
+    .level-up-modal.active {
+      display: flex;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .level-up-box {
+      background: linear-gradient(135deg, #0e274a, #061324);
+      border: 3px solid #ffd700;
+      border-radius: 20px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.5), inset 0 0 20px rgba(255, 215, 0, 0.2);
+      max-width: 380px;
+      width: 100%;
+      animation: popBounce 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+
+    @keyframes popBounce {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .level-up-badge {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #ffd700;
+      text-shadow: 0 0 15px rgba(255,215,0,0.8);
+      margin-bottom: 6px;
+    }
+
+    .level-up-number {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #fff;
+      font-family: monospace;
+      text-shadow: 0 0 20px var(--primary);
+      margin: 4px 0;
+    }
+
+    .level-up-title-unlocked {
+      background: rgba(0, 229, 255, 0.15);
+      border: 1px solid var(--primary);
+      color: #00ffcc;
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      margin: 12px 0 16px 0;
+    }
+
+    .level-up-btn {
+      background: linear-gradient(135deg, #ffd700, #ff8800);
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-size: 1.15rem;
+      font-weight: 900;
+      padding: 12px 30px;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    }
+
+    /* リザルト画面 */
+    .result-card {
+      text-align: center;
+      padding: 20px 14px;
+    }
+
+    .result-rank-badge {
+      display: inline-block;
+      width: 85px;
+      height: 85px;
+      line-height: 85px;
+      font-size: 3.2rem;
+      font-weight: 900;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffd700 0%, #b8860b 80%);
+      color: #000;
+      box-shadow: 0 0 25px var(--accent-glow);
+      margin-bottom: 8px;
+    }
+
+    .result-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin: 0 0 4px 0;
+      color: #fff;
+    }
+
+    .result-subtitle {
+      font-size: 0.85rem;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .exp-gain-box {
+      background: #091729;
+      border: 1px solid var(--primary);
+      border-radius: 10px;
+      padding: 8px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #00ffcc;
+    }
+
+    .result-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .result-stat-item {
+      background: #0f233a;
+      border: 1px solid #1f4269;
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    .result-stat-num {
+      font-size: 1.35rem;
+      font-weight: bold;
+      color: #fff;
+      font-family: monospace;
+    }
+
+    .btn-action-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #00e5ff 0%, #0077ff 100%);
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-size: 1.1rem;
+      font-weight: 900;
+      padding: 13px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 15px rgba(0, 229, 255, 0.4);
+    }
+
+    .btn-action-secondary {
+      width: 100%;
+      background: #112233;
+      border: 1px solid #234567;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: bold;
+      padding: 11px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ヘッダー -->
+    <header>
+      <div class="logo-area">
+        <span class="logo-icon">⚡</span>
+        <h1 class="game-title">バトルナイン</h1>
+      </div>
+      <div class="top-actions">
+        <button id="soundToggleBtn" class="btn-header" title="おとのON/OFF">
+          <span id="soundIcon">🔊</span>
+          <span id="soundText"><ruby>音<rt>おと</rt></ruby> ON</span>
+        </button>
+        <button id="resetDataBtn" class="btn-header" title="データをリセット">
+          ⚙️
+        </button>
+      </div>
+    </header>
+
+    <!-- ① タイトル / モード選択画面 -->
+    <div id="titleScreen" class="screen active">
+      <div class="title-banner">
+        <div class="sub-badge">⚔️ <ruby>小<rt>しょう</rt>学<rt>がく</rt></ruby>２<ruby>年<rt>ねん</rt>生<rt>せい</rt></ruby>むけ！ レベルアップ<ruby>版<rt>ばん</rt></ruby> ⚔️</div>
+        <div class="main-logo">超・九九戦記<br><span style="color:var(--primary); font-size:1.7rem;">BATTLE 9</span></div>
+      </div>
+
+      <!-- パイロットステータスカード（成績＆レベル） -->
+      <div class="pilot-card">
+        <div class="pilot-header">
+          <div class="pilot-level-badge">
+            <span class="level-label">LEVEL</span>
+            <span class="level-number" id="pilotLevelNum">1</span>
+          </div>
+          <div class="pilot-title-tag">
+            <span>🎖️</span>
+            <span id="pilotTitleName"><ruby>九<rt>く</rt>九<rt>く</rt></ruby>ルーキー</span>
+          </div>
+        </div>
+
+        <!-- 経験値バー -->
+        <div class="exp-container">
+          <div class="exp-text-row">
+            <span>EXP: <strong id="pilotExpCur" style="color:#fff;">0</strong> / <span id="pilotExpNext">100</span></span>
+            <span id="pilotExpPercent">0%</span>
+          </div>
+          <div class="exp-bar-bg">
+            <div class="exp-bar-fill" id="pilotExpBar"></div>
+          </div>
+        </div>
+
+        <!-- 成績サマリー -->
+        <div class="stats-summary-grid">
+          <div class="stat-mini-box">
+            <span class="stat-mini-label"><ruby>挑戦<rt>ちょうせん</rt></ruby><ruby>回数<rt>かいすう</rt></ruby></span>
+            <span class="stat-mini-val" id="statTotalAttempts">0<small style="font-size:0.6rem;">回</small></span>
+          </div>
+          <div class="stat-mini-box">
+            <span class="stat-mini-label"><ruby>正答率<rt>せいとうりつ</rt></ruby></span>
+            <span class="stat-mini-val" id="statAccuracy" style="color:var(--success);">0%</span>
+          </div>
+          <div class="stat-mini-box">
+            <span class="stat-mini-label"><ruby>最高<rt>さいこう</rt></ruby>コンボ</span>
+            <span class="stat-mini-val" id="statMaxCombo" style="color:var(--accent);">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- モード選択カード -->
+      <div class="card">
+        <div class="card-title">🎯 モードを えらぼう！</div>
+        <button class="mode-btn" id="startAttackBtn">
+          <div class="mode-btn-content">
+            <div class="mode-btn-title">⏱️ 60<ruby>秒<rt>びょう</rt></ruby> タイムアタック！</div>
+            <div class="mode-btn-desc">60<ruby>秒<rt>びょう</rt></ruby>で なん<ruby>体<rt>たい</rt></ruby><ruby>倒<rt>たお</rt></ruby>せるか？ 大量EXPゲット！</div>
+          </div>
+          <div style="font-size:1.7rem;">⚡</div>
+        </button>
+
+        <button class="mode-btn" id="startRandomBtn">
+          <div class="mode-btn-content">
+            <div class="mode-btn-title">🎲 ぜんだん ランダムバトル（10<ruby>問<rt>もん</rt></ruby>）</div>
+            <div class="mode-btn-desc">1のだん〜9のだんが ランダムに出現！</div>
+          </div>
+          <div style="font-size:1.7rem;">💥</div>
+        </button>
+      </div>
+
+      <!-- 段ごとの練習カード -->
+      <div class="card">
+        <div class="card-title">📖 <ruby>段<rt>だん</rt></ruby>ごとに れんしゅうする</div>
+        <div class="dan-grid" id="danGrid">
+          <!-- JSで自動生成 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ② バトル画面 -->
+    <div id="battleScreen" class="screen">
+      <div class="battle-header">
+        <div class="stat-pill">
+          <span class="stat-label" id="modeInfoLabel"><ruby>問題<rt>もんだい</rt></ruby></span>
+          <span class="stat-value" id="questionProgress">1 / 10</span>
+        </div>
+        <div class="stat-pill combo-pill">
+          <span class="stat-label">コンボ</span>
+          <span class="stat-value" id="comboCount">0</span>
+        </div>
+        <div class="stat-pill timer-pill">
+          <span class="stat-label" id="timerLabel"><ruby>時間<rt>じかん</rt></ruby></span>
+          <span class="stat-value" id="timerValue">60</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">スコア</span>
+          <span class="stat-value" id="scoreValue">0</span>
+        </div>
+      </div>
+
+      <!-- 敵メカステージ（SVGビジュアル） -->
+      <div class="enemy-stage">
+        <div class="enemy-meta-row">
+          <div class="enemy-name" id="enemyName">
+            <span>🤖</span> <ruby>サイバードローン<rt>エネミー</rt></ruby>
+          </div>
+          <div class="enemy-type-tag" id="enemyTypeTag">スカウト型</div>
+        </div>
+        <div class="hp-bar-bg">
+          <div class="hp-bar-fill" id="enemyHpBar"></div>
+        </div>
+        <div class="enemy-container">
+          <div id="enemySvgContainer" class="enemy-robot">
+            <!-- 動的SVG -->
+          </div>
+          <div id="attackSlash" class="attack-slash"></div>
+        </div>
+      </div>
+
+      <!-- 出題パネル -->
+      <div class="question-box">
+        <div class="math-formula">
+          <span id="qNum1">7</span>
+          <span class="math-operator">×</span>
+          <span id="qNum2">8</span>
+          <span class="math-operator">＝</span>
+          <span class="answer-display empty" id="answerDisplay">?</span>
+        </div>
+        <div class="kuku-voice-hint" id="kukuVoiceHint">しち は？</div>
+      </div>
+
+      <!-- 仮想テンキー -->
+      <div class="keypad-container">
+        <button class="num-key" data-key="7">7</button>
+        <button class="num-key" data-key="8">8</button>
+        <button class="num-key" data-key="9">9</button>
+        <button class="num-key" data-key="4">4</button>
+        <button class="num-key" data-key="5">5</button>
+        <button class="num-key" data-key="6">6</button>
+        <button class="num-key" data-key="1">1</button>
+        <button class="num-key" data-key="2">2</button>
+        <button class="num-key" data-key="3">3</button>
+        <button class="num-key key-clear" id="keyClear">
+          <ruby>消去<rt>けす</rt></ruby>
+        </button>
+        <button class="num-key" data-key="0">0</button>
+        <button class="num-key key-enter" id="keyEnter">
+          <ruby>攻撃<rt>こうげき</rt></ruby>!
+        </button>
+      </div>
+
+      <div id="feedbackToast" class="feedback-toast">せいかい！</div>
+    </div>
+
+    <!-- ③ リザルト画面 -->
+    <div id="resultScreen" class="screen">
+      <div class="card result-card">
+        <div id="resultRankBadge" class="result-rank-badge">S</div>
+        <h2 class="result-title" id="resultTitle">ミッション コンプリート！</h2>
+        <div class="result-subtitle" id="resultSubtitle">称号: 超光速の九九マスター</div>
+
+        <!-- 獲得EXP表示 -->
+        <div class="exp-gain-box">
+          <span>⚡ 今回ゲットしたEXP:</span>
+          <span id="resGainedExp" style="font-size:1.3rem; color:#ffd700;">+320 EXP</span>
+        </div>
+
+        <div class="result-stat-grid">
+          <div class="result-stat-item">
+            <div class="stat-label"><ruby>正解数<rt>せいかいすう</rt></ruby> / <ruby>正答率<rt>せいとうりつ</rt></ruby></div>
+            <div class="result-stat-num" id="resCorrect">10 / 10</div>
+          </div>
+          <div class="result-stat-item">
+            <div class="stat-label"><ruby>最大<rt>さいだい</rt></ruby>コンボ</div>
+            <div class="result-stat-num" id="resMaxCombo">10</div>
+          </div>
+          <div class="result-stat-item">
+            <div class="stat-label">トータルスコア</div>
+            <div class="result-stat-num" id="resScore">12,500</div>
+          </div>
+          <div class="result-stat-item">
+            <div class="stat-label"><ruby>クリア時間<rt>じかん</rt></ruby></div>
+            <div class="result-stat-num" id="resTime">18.4<ruby>秒<rt>びょう</rt></ruby></div>
+          </div>
+        </div>
+
+        <button class="btn-action-primary" id="retryBtn">
+          🔁 もういちど <ruby>挑戦<rt>ちょうせん</rt></ruby>する
+        </button>
+        <button class="btn-action-secondary" id="backToTitleBtn">
+          🏠 モード<ruby>選択<rt>せんたく</rt></ruby>へ もどる
+        </button>
+      </div>
+    </div>
+
+    <!-- ④ レベルアップ演出モーダル -->
+    <div id="levelUpModal" class="level-up-modal">
+      <div class="level-up-box">
+        <div class="level-up-badge">✨ LEVEL UP!! ✨</div>
+        <div style="font-size:0.9rem; color:var(--text-dim);">パイロットレベルが 上がったぞ！</div>
+        <div class="level-up-number" id="modalLevelNum">Lv.2</div>
+        <div class="level-up-title-unlocked">
+          <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:2px;">新しい称号を獲得！</div>
+          <div id="modalTitleName" style="color:#ffd700; font-size:1.2rem;">アイアンファイター</div>
+        </div>
+        <button class="level-up-btn" id="modalCloseBtn">OK! つぎへ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- 音響システム (Web Audio API) ---
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      toggleMute() {
+        this.muted = !this.muted;
+        return !this.muted;
+      }
+      playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.1) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+      }
+      playKey() { this.playTone(600, 'sine', 0.04, 0.08); }
+      playLaser() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.15);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(now + 0.15);
+      }
+      playHit() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(40, now + 0.2);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(now + 0.2);
+      }
+      playCorrect(combo = 0) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const baseFreq = 523.25;
+        const mult = Math.min(combo, 12);
+        const freq1 = baseFreq * Math.pow(1.05946, mult);
+        const freq2 = freq1 * 1.25;
+        this.playTone(freq1, 'triangle', 0.12, 0.15);
+        setTimeout(() => this.playTone(freq2, 'triangle', 0.18, 0.2), 80);
+      }
+      playWrong() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        this.playTone(180, 'sawtooth', 0.18, 0.2);
+        setTimeout(() => this.playTone(130, 'sawtooth', 0.25, 0.2), 120);
+      }
+      playLevelUp() {
+        if (this.muted) return;
+        const notes = [440, 554, 659, 880, 1108];
+        notes.forEach((f, idx) => {
+          setTimeout(() => this.playTone(f, 'sine', 0.28, 0.25), idx * 100);
+        });
+      }
+      playFanfare() {
+        if (this.muted) return;
+        const notes = [523, 659, 783, 1046];
+        notes.forEach((f, idx) => {
+          setTimeout(() => this.playTone(f, 'sine', 0.25, 0.2), idx * 120);
+        });
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    // --- 称号・レベル定義 ---
+    const TITLES = [
+      { lv: 1, title: '九九ルーキー' },
+      { lv: 2, title: 'アイアンスカウト' },
+      { lv: 3, title: 'サイバーソルジャー' },
+      { lv: 5, title: 'プラズマストライカー' },
+      { lv: 8, title: 'バーストナイト' },
+      { lv: 10, title: 'メガブレード戦士' },
+      { lv: 15, title: 'シャドウアサシン' },
+      { lv: 20, title: 'アストロコマンダー' },
+      { lv: 25, title: 'クロノマスター' },
+      { lv: 30, title: '銀河バスター' },
+      { lv: 40, title: '神速の九九マスター' },
+      { lv: 50, title: '超次元九九ゴッド' }
+    ];
+
+    function getTitleForLevel(level) {
+      let current = TITLES[0].title;
+      for (const t of TITLES) {
+        if (level >= t.lv) current = t.title;
+      }
+      return current;
+    }
+
+    function getExpForNextLevel(level) {
+      // レベルごとの必要EXP（二年生でもテンポよく上がれるように調整）
+      return Math.round(80 * Math.pow(level, 1.25));
+    }
+
+    // --- 敵ロボットのビジュアル生成（多彩なSVG） ---
+    const ENEMY_SPECIES = [
+      {
+        type: 'スカウトドローン',
+        tag: '偵察型',
+        render: (color, accent) => `
+          <svg width="85" height="85" viewBox="0 0 100 100">
+            <!-- プロペラ -->
+            <line x1="15" y1="20" x2="85" y2="20" stroke="${accent}" stroke-width="4" stroke-linecap="round"/>
+            <line x1="50" y1="12" x2="50" y2="28" stroke="${accent}" stroke-width="3"/>
+            <!-- 球体ボディ -->
+            <circle cx="50" cy="55" r="30" fill="#102540" stroke="${color}" stroke-width="3.5"/>
+            <!-- センサーアイ -->
+            <ellipse cx="50" cy="55" rx="16" ry="12" fill="#040c17" stroke="#ff0055" stroke-width="2"/>
+            <circle cx="50" cy="55" r="6" fill="#ff0055"/>
+            <circle cx="54" cy="52" r="2" fill="#fff"/>
+            <!-- ウイング -->
+            <polygon points="12,50 22,40 22,65" fill="${color}"/>
+            <polygon points="88,50 78,40 78,65" fill="${color}"/>
+          </svg>
+        `
+      },
+      {
+        type: 'アイアンタイタン',
+        tag: '重装型',
+        render: (color, accent) => `
+          <svg width="85" height="85" viewBox="0 0 100 100">
+            <!-- ショルダーキャノン -->
+            <rect x="18" y="15" width="10" height="25" fill="#1f3d64" stroke="${accent}" stroke-width="2"/>
+            <rect x="72" y="15" width="10" height="25" fill="#1f3d64" stroke="${accent}" stroke-width="2"/>
+            <!-- 重装甲ボディ -->
+            <polygon points="25,35 75,35 85,85 15,85" fill="#0e233d" stroke="${color}" stroke-width="3.5"/>
+            <!-- バイザーアイ -->
+            <polygon points="32,45 68,45 64,55 36,55" fill="#ff0055"/>
+            <!-- アーマープレート -->
+            <line x1="28" y1="68" x2="72" y2="68" stroke="${color}" stroke-width="3"/>
+            <circle cx="50" cy="76" r="5" fill="${accent}"/>
+          </svg>
+        `
+      },
+      {
+        type: 'サイバービースト',
+        tag: '獣型',
+        render: (color, accent) => `
+          <svg width="85" height="85" viewBox="0 0 100 100">
+            <!-- 鋭いツノ -->
+            <polygon points="30,10 40,35 25,32" fill="${accent}"/>
+            <polygon points="70,10 75,32 60,35" fill="${accent}"/>
+            <!-- 狼ヘッド -->
+            <polygon points="50,25 78,45 70,80 50,92 30,80 22,45" fill="#132742" stroke="${color}" stroke-width="3.5"/>
+            <!-- 鋭い双眼 -->
+            <polygon points="36,46 46,50 38,54" fill="#00ff66"/>
+            <polygon points="64,46 62,54 54,50" fill="#00ff66"/>
+            <!-- メカファング（牙） -->
+            <polygon points="44,72 50,82 46,72" fill="#fff"/>
+            <polygon points="56,72 54,72 50,82" fill="#fff"/>
+          </svg>
+        `
+      },
+      {
+        type: 'サンダードラゴン',
+        tag: '飛行竜型',
+        render: (color, accent) => `
+          <svg width="85" height="85" viewBox="0 0 100 100">
+            <!-- 巨大な翼 -->
+            <polygon points="50,45 5,20 15,65" fill="#1a3d66" stroke="${accent}" stroke-width="2"/>
+            <polygon points="50,45 85,65 95,20" fill="#1a3d66" stroke="${accent}" stroke-width="2"/>
+            <!-- ドラゴンヘッド -->
+            <polygon points="50,15 68,40 60,78 50,95 40,78 32,40" fill="#0a1d35" stroke="${color}" stroke-width="3.5"/>
+            <!-- ドラゴンアイ -->
+            <circle cx="42" cy="48" r="4" fill="#ffd700"/>
+            <circle cx="58" cy="48" r="4" fill="#ffd700"/>
+            <!-- プラズマホーン -->
+            <line x1="50" y1="20" x2="50" y2="5" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        `
+      },
+      {
+        type: 'オメガエンペラー',
+        tag: '皇帝型BOSS',
+        render: (color, accent) => `
+          <svg width="85" height="85" viewBox="0 0 100 100">
+            <!-- 王冠パーツ -->
+            <polygon points="30,15 40,28 50,10 60,28 70,15 65,35 35,35" fill="${accent}" stroke="#fff" stroke-width="1.5"/>
+            <!-- 皇帝ボディ -->
+            <polygon points="25,35 75,35 88,85 50,95 12,85" fill="#1a0f28" stroke="${color}" stroke-width="3.5"/>
+            <!-- プラズマジェネレーターコア -->
+            <circle cx="50" cy="62" r="14" fill="#06020c" stroke="#ff0055" stroke-width="2"/>
+            <circle cx="50" cy="62" r="7" fill="#ff0055"/>
+            <!-- 鋭いバイザー -->
+            <line x1="34" y1="45" x2="66" y2="45" stroke="#00ffcc" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        `
+      }
+    ];
+
+    const COLOR_THEMES = [
+      { color: '#00e5ff', accent: '#ffd700' },
+      { color: '#ff0055', accent: '#00ffcc' },
+      { color: '#00ff66', accent: '#ff0055' },
+      { color: '#ffaa00', accent: '#00e5ff' },
+      { color: '#b700ff', accent: '#ffd700' }
+    ];
+
+    // --- 成績データの永続保存（localStorage） ---
+    const STORAGE_KEY = 'kuku_battle_nine_save_v1';
+
+    function loadGameData() {
+      const defaultData = {
+        level: 1,
+        exp: 0,
+        totalAttempts: 0,
+        totalQuestions: 0,
+        totalCorrect: 0,
+        highestCombo: 0,
+        danStats: {
+          1: { attempts: 0, correct: 0 },
+          2: { attempts: 0, correct: 0 },
+          3: { attempts: 0, correct: 0 },
+          4: { attempts: 0, correct: 0 },
+          5: { attempts: 0, correct: 0 },
+          6: { attempts: 0, correct: 0 },
+          7: { attempts: 0, correct: 0 },
+          8: { attempts: 0, correct: 0 },
+          9: { attempts: 0, correct: 0 }
+        }
+      };
+
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return defaultData;
+        const parsed = JSON.parse(raw);
+        return { ...defaultData, ...parsed };
+      } catch (e) {
+        return defaultData;
+      }
+    }
+
+    function saveGameData(data) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    let UserData = loadGameData();
+
+    // --- ゲームランタイム状態 ---
+    const State = {
+      mode: 'random',
+      selectedDan: 2,
+      currentQuestionIdx: 0,
+      totalQuestions: 10,
+      qNum1: 1,
+      qNum2: 1,
+      correctAnswer: 1,
+      inputBuffer: '',
+      score: 0,
+      combo: 0,
+      maxCombo: 0,
+      correctCount: 0,
+      roundAttempts: 0,
+      startTime: 0,
+      timerSec: 60,
+      timerInterval: null,
+      questionList: []
+    };
+
+    // DOM要素
+    const dom = {
+      titleScreen: document.getElementById('titleScreen'),
+      battleScreen: document.getElementById('battleScreen'),
+      resultScreen: document.getElementById('resultScreen'),
+      levelUpModal: document.getElementById('levelUpModal'),
+      modalCloseBtn: document.getElementById('modalCloseBtn'),
+      modalLevelNum: document.getElementById('modalLevelNum'),
+      modalTitleName: document.getElementById('modalTitleName'),
+      soundToggleBtn: document.getElementById('soundToggleBtn'),
+      soundIcon: document.getElementById('soundIcon'),
+      soundText: document.getElementById('soundText'),
+      resetDataBtn: document.getElementById('resetDataBtn'),
+      startAttackBtn: document.getElementById('startAttackBtn'),
+      startRandomBtn: document.getElementById('startRandomBtn'),
+      danGrid: document.getElementById('danGrid'),
+      pilotLevelNum: document.getElementById('pilotLevelNum'),
+      pilotTitleName: document.getElementById('pilotTitleName'),
+      pilotExpCur: document.getElementById('pilotExpCur'),
+      pilotExpNext: document.getElementById('pilotExpNext'),
+      pilotExpPercent: document.getElementById('pilotExpPercent'),
+      pilotExpBar: document.getElementById('pilotExpBar'),
+      statTotalAttempts: document.getElementById('statTotalAttempts'),
+      statAccuracy: document.getElementById('statAccuracy'),
+      statMaxCombo: document.getElementById('statMaxCombo'),
+      modeInfoLabel: document.getElementById('modeInfoLabel'),
+      questionProgress: document.getElementById('questionProgress'),
+      comboCount: document.getElementById('comboCount'),
+      timerLabel: document.getElementById('timerLabel'),
+      timerValue: document.getElementById('timerValue'),
+      scoreValue: document.getElementById('scoreValue'),
+      enemyName: document.getElementById('enemyName'),
+      enemyTypeTag: document.getElementById('enemyTypeTag'),
+      enemyHpBar: document.getElementById('enemyHpBar'),
+      enemySvgContainer: document.getElementById('enemySvgContainer'),
+      attackSlash: document.getElementById('attackSlash'),
+      qNum1: document.getElementById('qNum1'),
+      qNum2: document.getElementById('qNum2'),
+      answerDisplay: document.getElementById('answerDisplay'),
+      kukuVoiceHint: document.getElementById('kukuVoiceHint'),
+      keypadKeys: document.querySelectorAll('.num-key[data-key]'),
+      keyClear: document.getElementById('keyClear'),
+      keyEnter: document.getElementById('keyEnter'),
+      feedbackToast: document.getElementById('feedbackToast'),
+      retryBtn: document.getElementById('retryBtn'),
+      backToTitleBtn: document.getElementById('backToTitleBtn'),
+      resultRankBadge: document.getElementById('resultRankBadge'),
+      resultTitle: document.getElementById('resultTitle'),
+      resultSubtitle: document.getElementById('resultSubtitle'),
+      resGainedExp: document.getElementById('resGainedExp'),
+      resCorrect: document.getElementById('resCorrect'),
+      resMaxCombo: document.getElementById('resMaxCombo'),
+      resScore: document.getElementById('resScore'),
+      resTime: document.getElementById('resTime')
+    };
+
+    // 音声読み辞書
+    function getKukuReading(a, b) {
+      const readA = { 1: 'いん', 2: 'に', 3: 'さん', 4: 'し', 5: 'ご', 6: 'ろく', 7: 'しち', 8: 'はち', 9: 'く' }[a];
+      const readB = { 1: 'いち', 2: 'に', 3: 'さん', 4: 'し', 5: 'ご', 6: 'ろく', 7: 'しち', 8: 'はち', 9: 'く' }[b];
+      return `${readA} ${readB} は？`;
+    }
+
+    // --- UI更新：タイトル画面のパイロットステータス ---
+    function updatePilotStatusUI() {
+      dom.pilotLevelNum.textContent = UserData.level;
+      dom.pilotTitleName.textContent = getTitleForLevel(UserData.level);
+
+      const nextExp = getExpForNextLevel(UserData.level);
+      dom.pilotExpCur.textContent = UserData.exp;
+      dom.pilotExpNext.textContent = nextExp;
+
+      const pct = Math.min(100, Math.round((UserData.exp / nextExp) * 100));
+      dom.pilotExpPercent.textContent = `${pct}%`;
+      dom.pilotExpBar.style.width = `${pct}%`;
+
+      dom.statTotalAttempts.textContent = `${UserData.totalAttempts}回`;
+
+      const acc = UserData.totalQuestions > 0 
+        ? Math.round((UserData.totalCorrect / UserData.totalQuestions) * 100) 
+        : 0;
+      dom.statAccuracy.textContent = `${acc}%`;
+      dom.statMaxCombo.textContent = UserData.highestCombo;
+
+      // 段選択グリッドの更新
+      renderDanGrid();
+    }
+
+    function renderDanGrid() {
+      const danTips = {
+        1: '基本', 2: 'ににんがし', 3: 'さざんがきゅう',
+        4: 'しし16', 5: 'ごご25', 6: 'ろくろく36',
+        7: 'しちしち49', 8: 'はっぱ64', 9: 'くく81'
+      };
+
+      dom.danGrid.innerHTML = '';
+      for (let d = 1; d <= 9; d++) {
+        const btn = document.createElement('button');
+        btn.className = 'dan-btn';
+        btn.dataset.dan = d;
+
+        const dStat = UserData.danStats && UserData.danStats[d] ? UserData.danStats[d] : { attempts: 0, correct: 0 };
+        const dAcc = dStat.attempts > 0 ? Math.round((dStat.correct / dStat.attempts) * 100) : null;
+
+        btn.innerHTML = `
+          <span>${d}の<ruby>段<rt>だん</rt></ruby></span>
+          <span class="dan-badge">${danTips[d]}</span>
+          ${dAcc !== null ? `<span class="dan-rate">正解率:${dAcc}%</span>` : ''}
+        `;
+
+        btn.addEventListener('click', () => {
+          startBattle('dan', d);
+        });
+
+        dom.danGrid.appendChild(btn);
+      }
+    }
+
+    // 画面切り替え
+    function switchScreen(screen) {
+      [dom.titleScreen, dom.battleScreen, dom.resultScreen].forEach(s => s.classList.remove('active'));
+      screen.classList.add('active');
+    }
+
+    // サウンドトグル
+    dom.soundToggleBtn.addEventListener('click', () => {
+      sound.init();
+      const isSoundOn = sound.toggleMute();
+      dom.soundIcon.textContent = isSoundOn ? '🔊' : '🔇';
+      dom.soundText.innerHTML = isSoundOn ? '<ruby>音<rt>おと</rt></ruby> ON' : '<ruby>音<rt>おと</rt></ruby> OFF';
+    });
+
+    // データリセット（設定ボタン）
+    dom.resetDataBtn.addEventListener('click', () => {
+      if (confirm('これまでのレベルや成績データをリセットしますか？')) {
+        localStorage.removeItem(STORAGE_KEY);
+        UserData = loadGameData();
+        updatePilotStatusUI();
+        alert('データをリセットしました！');
+      }
+    });
+
+    // モード開始
+    dom.startAttackBtn.addEventListener('click', () => startBattle('attack'));
+    dom.startRandomBtn.addEventListener('click', () => startBattle('random'));
+
+    dom.retryBtn.addEventListener('click', () => {
+      startBattle(State.mode, State.selectedDan);
+    });
+
+    dom.backToTitleBtn.addEventListener('click', () => {
+      clearInterval(State.timerInterval);
+      updatePilotStatusUI();
+      switchScreen(dom.titleScreen);
+    });
+
+    dom.modalCloseBtn.addEventListener('click', () => {
+      dom.levelUpModal.classList.remove('active');
+    });
+
+    // 問題生成
+    function generateQuestions(mode, dan = 2) {
+      const questions = [];
+      if (mode === 'dan') {
+        for (let b = 1; b <= 9; b++) {
+          questions.push({ a: dan, b: b, ans: dan * b });
+        }
+        for (let i = questions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [questions[i], questions[j]] = [questions[j], questions[i]];
+        }
+      } else if (mode === 'random') {
+        for (let i = 0; i < 10; i++) {
+          const a = Math.floor(Math.random() * 9) + 1;
+          const b = Math.floor(Math.random() * 9) + 1;
+          questions.push({ a: a, b: b, ans: a * b });
+        }
+      } else if (mode === 'attack') {
+        for (let i = 0; i < 70; i++) {
+          const a = Math.floor(Math.random() * 9) + 1;
+          const b = Math.floor(Math.random() * 9) + 1;
+          questions.push({ a: a, b: b, ans: a * b });
+        }
+      }
+      return questions;
+    }
+
+    // バトル開始
+    function startBattle(mode, dan = 2) {
+      sound.init();
+      sound.playTone(440, 'sine', 0.1);
+
+      State.mode = mode;
+      State.selectedDan = dan;
+      State.questionList = generateQuestions(mode, dan);
+      State.currentQuestionIdx = 0;
+      State.score = 0;
+      State.combo = 0;
+      State.maxCombo = 0;
+      State.correctCount = 0;
+      State.roundAttempts = 0;
+      State.inputBuffer = '';
+      State.startTime = Date.now();
+
+      clearInterval(State.timerInterval);
+
+      if (mode === 'attack') {
+        State.timerSec = 60;
+        dom.timerLabel.innerHTML = '<ruby>残<rt>のこ</rt></ruby>り<ruby>秒<rt>びょう</rt></ruby>';
+        dom.timerValue.textContent = State.timerSec;
+        dom.modeInfoLabel.innerHTML = '<ruby>撃破数<rt>げきはすう</rt></ruby>';
+        dom.questionProgress.textContent = '0<ruby>体<rt>たい</rt></ruby>';
+        State.timerInterval = setInterval(() => {
+          State.timerSec--;
+          dom.timerValue.textContent = State.timerSec;
+          if (State.timerSec <= 5 && State.timerSec > 0) {
+            sound.playTone(330, 'square', 0.1);
+          }
+          if (State.timerSec <= 0) {
+            clearInterval(State.timerInterval);
+            finishGame();
+          }
+        }, 1000);
+      } else {
+        State.totalQuestions = State.questionList.length;
+        dom.timerLabel.innerHTML = '<ruby>経過<rt>けいか</rt></ruby>';
+        dom.timerValue.textContent = '0s';
+        dom.modeInfoLabel.innerHTML = '<ruby>問題<rt>もんだい</rt></ruby>';
+        dom.questionProgress.textContent = `1 / ${State.totalQuestions}`;
+        State.timerInterval = setInterval(() => {
+          const elapsed = Math.floor((Date.now() - State.startTime) / 1000);
+          dom.timerValue.textContent = `${elapsed}s`;
+        }, 1000);
+      }
+
+      updateStatusUI();
+      loadQuestion();
+      switchScreen(dom.battleScreen);
+    }
+
+    // 敵のビジュアル更新
+    function updateEnemyVisual(questionIdx) {
+      // 敵の種類を進行度やレベルでローテーション
+      const speciesIdx = questionIdx % ENEMY_SPECIES.length;
+      const themeIdx = (questionIdx + UserData.level) % COLOR_THEMES.length;
+      
+      const species = ENEMY_SPECIES[speciesIdx];
+      const theme = COLOR_THEMES[themeIdx];
+
+      dom.enemyName.innerHTML = `<span>🤖</span> <ruby>${species.type}<rt>エネミー</rt></ruby> Lv.${questionIdx + 1}`;
+      dom.enemyTypeTag.textContent = species.tag;
+      dom.enemyTypeTag.style.borderColor = theme.color;
+      dom.enemyTypeTag.style.color = theme.color;
+
+      dom.enemySvgContainer.innerHTML = species.render(theme.color, theme.accent);
+      dom.enemyHpBar.style.width = '100%';
+    }
+
+    // 現在の問題をロード
+    function loadQuestion() {
+      if (State.mode !== 'attack' && State.currentQuestionIdx >= State.questionList.length) {
+        finishGame();
+        return;
+      }
+
+      const q = State.questionList[State.currentQuestionIdx];
+      State.qNum1 = q.a;
+      State.qNum2 = q.b;
+      State.correctAnswer = q.ans;
+
+      dom.qNum1.textContent = q.a;
+      dom.qNum2.textContent = q.b;
+      dom.kukuVoiceHint.textContent = getKukuReading(q.a, q.b);
+
+      State.inputBuffer = '';
+      updateInputDisplay();
+
+      updateEnemyVisual(State.currentQuestionIdx);
+
+      if (State.mode !== 'attack') {
+        dom.questionProgress.textContent = `${State.currentQuestionIdx + 1} / ${State.totalQuestions}`;
+      } else {
+        dom.questionProgress.textContent = `${State.correctCount}<ruby>体<rt>たい</rt></ruby>`;
+      }
+    }
+
+    function updateInputDisplay() {
+      if (State.inputBuffer === '') {
+        dom.answerDisplay.textContent = '?';
+        dom.answerDisplay.classList.add('empty');
+      } else {
+        dom.answerDisplay.textContent = State.inputBuffer;
+        dom.answerDisplay.classList.remove('empty');
+      }
+    }
+
+    // テンキー
+    dom.keypadKeys.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const num = btn.dataset.key;
+        if (State.inputBuffer.length < 3) {
+          State.inputBuffer += num;
+          sound.playKey();
+          updateInputDisplay();
+        }
+      });
+    });
+
+    dom.keyClear.addEventListener('click', () => {
+      State.inputBuffer = '';
+      sound.playKey();
+      updateInputDisplay();
+    });
+
+    dom.keyEnter.addEventListener('click', submitAnswer);
+
+    // キーボード入力
+    window.addEventListener('keydown', (e) => {
+      if (!dom.battleScreen.classList.contains('active')) return;
+      if (e.key >= '0' && e.key <= '9') {
+        if (State.inputBuffer.length < 3) {
+          State.inputBuffer += e.key;
+          sound.playKey();
+          updateInputDisplay();
+        }
+      } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'c' || e.key === 'C') {
+        State.inputBuffer = '';
+        sound.playKey();
+        updateInputDisplay();
+      } else if (e.key === 'Enter') {
+        submitAnswer();
+      }
+    });
+
+    function submitAnswer() {
+      if (State.inputBuffer === '') return;
+      State.roundAttempts++;
+      const userAns = parseInt(State.inputBuffer, 10);
+      
+      // 段ごとの記録集計用
+      const currentDan = State.qNum1;
+      if (!UserData.danStats[currentDan]) {
+        UserData.danStats[currentDan] = { attempts: 0, correct: 0 };
+      }
+      UserData.danStats[currentDan].attempts++;
+
+      if (userAns === State.correctAnswer) {
+        UserData.danStats[currentDan].correct++;
+        handleCorrect();
+      } else {
+        handleWrong();
+      }
+    }
+
+    function handleCorrect() {
+      State.combo++;
+      if (State.combo > State.maxCombo) State.maxCombo = State.combo;
+      State.correctCount++;
+
+      const comboBonus = (State.combo - 1) * 50;
+      State.score += 100 + comboBonus;
+
+      sound.playLaser();
+      setTimeout(() => sound.playHit(), 100);
+      sound.playCorrect(State.combo);
+
+      // 斬撃とダメージ
+      dom.attackSlash.classList.remove('active');
+      void dom.attackSlash.offsetWidth;
+      dom.attackSlash.classList.add('active');
+
+      dom.enemySvgContainer.classList.add('hit');
+      dom.enemyHpBar.style.width = '0%';
+      setTimeout(() => dom.enemySvgContainer.classList.remove('hit'), 400);
+
+      showToast('⭕ せいかい！', 'correct');
+      updateStatusUI();
+
+      setTimeout(() => {
+        State.currentQuestionIdx++;
+        loadQuestion();
+      }, 500);
+    }
+
+    function handleWrong() {
+      State.combo = 0;
+      sound.playWrong();
+      showToast(`❌ こたえは ${State.correctAnswer}`, 'wrong');
+      updateStatusUI();
+      State.inputBuffer = '';
+      updateInputDisplay();
+    }
+
+    function updateStatusUI() {
+      dom.comboCount.textContent = State.combo;
+      dom.scoreValue.textContent = State.score.toLocaleString();
+    }
+
+    let toastTimeout = null;
+    function showToast(text, type) {
+      clearTimeout(toastTimeout);
+      dom.feedbackToast.textContent = text;
+      dom.feedbackToast.className = `feedback-toast ${type}`;
+      toastTimeout = setTimeout(() => {
+        dom.feedbackToast.className = 'feedback-toast';
+      }, 900);
+    }
+
+    // --- ゲーム終了・成績集計とレベルアップ計算 ---
+    function finishGame() {
+      clearInterval(State.timerInterval);
+      sound.playFanfare();
+
+      const elapsedSec = ((Date.now() - State.startTime) / 1000).toFixed(1);
+
+      // 経験値（EXP）の計算
+      // 基本EXP + コンボボーナス + 正解数ボーナス
+      let gainedExp = State.correctCount * 25;
+      gainedExp += State.maxCombo * 10;
+      if (State.roundAttempts > 0 && State.correctCount === State.roundAttempts) {
+        gainedExp += 50; // パーフェクトボーナス
+      }
+      if (State.mode === 'attack') {
+        gainedExp += Math.round(State.score * 0.05);
+      }
+
+      // ユーザーデータの集計・更新
+      UserData.totalAttempts++;
+      UserData.totalQuestions += Math.max(State.roundAttempts, State.correctCount);
+      UserData.totalCorrect += State.correctCount;
+      if (State.maxCombo > UserData.highestCombo) {
+        UserData.highestCombo = State.maxCombo;
+      }
+      UserData.exp += gainedExp;
+
+      // レベルアップ判定
+      let leveledUp = false;
+      let nextReq = getExpForNextLevel(UserData.level);
+      while (UserData.exp >= nextReq) {
+        UserData.exp -= nextReq;
+        UserData.level++;
+        leveledUp = true;
+        nextReq = getExpForNextLevel(UserData.level);
+      }
+
+      // 保存
+      saveGameData(UserData);
+
+      // リザルト表示
+      let rank = 'B';
+      let title = '九九ファイター';
+      let subtitle = 'がんばったね！もっと強くなれるぞ！';
+
+      if (State.mode === 'attack') {
+        dom.resCorrect.textContent = `${State.correctCount} 体撃破`;
+        dom.resTime.textContent = '60秒';
+        if (State.correctCount >= 25) {
+          rank = 'SS';
+          title = '⚡ 神速の九九マスター ⚡';
+          subtitle = '全宇宙最強のスピード計算戦士！すごすぎる！';
+        } else if (State.correctCount >= 18) {
+          rank = 'S';
+          title = '🔥 超光速の計算ヒーロー 🔥';
+          subtitle = 'すさまじいスピード！敵メカも太刀打ちできない！';
+        } else if (State.correctCount >= 10) {
+          rank = 'A';
+          title = '⭐ 九九エキスパート戦士 ⭐';
+          subtitle = 'ナイスバトル！さらに上のランクをめざそう！';
+        }
+      } else {
+        const accuracy = State.roundAttempts > 0 
+          ? Math.round((State.correctCount / State.roundAttempts) * 100) 
+          : 100;
+        dom.resCorrect.textContent = `${State.correctCount}問 (${accuracy}%)`;
+        dom.resTime.textContent = `${elapsedSec}秒`;
+
+        if (accuracy === 100 && parseFloat(elapsedSec) <= 15) {
+          rank = 'SS';
+          title = '🏆 完全無欠の九九ゴッド 🏆';
+          subtitle = 'パーフェクト＆ハイスピード！文句なしの九九マスター！';
+        } else if (accuracy === 100) {
+          rank = 'S';
+          title = '✨ パーフェクトソルジャー ✨';
+          subtitle = '全問正解！九九の力はカンペキだ！';
+        } else if (accuracy >= 80) {
+          rank = 'A';
+          title = '🛡️ 九九マスター見習い 🛡️';
+          subtitle = 'あと少しでパーフェクト！次は満点をねらおう！';
+        }
+      }
+
+      dom.resultRankBadge.textContent = rank;
+      dom.resultTitle.textContent = title;
+      dom.resultSubtitle.textContent = subtitle;
+      dom.resGainedExp.textContent = `+${gainedExp} EXP`;
+      dom.resMaxCombo.textContent = State.maxCombo;
+      dom.resScore.textContent = State.score.toLocaleString();
+
+      switchScreen(dom.resultScreen);
+
+      // レベルアップ演出モーダル表示
+      if (leveledUp) {
+        setTimeout(() => {
+          sound.playLevelUp();
+          dom.modalLevelNum.textContent = `Lv.${UserData.level}`;
+          dom.modalTitleName.textContent = getTitleForLevel(UserData.level);
+          dom.levelUpModal.classList.add('active');
+        }, 600);
+      }
+    }
+
+    // 初回初期化
+    updatePilotStatusUI();
+  </script>
+</body>
+</html>
