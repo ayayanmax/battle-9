@@ -1172,57 +1172,12 @@
       }
 
       startBgm(isSpeedMode = false) {
-        if (this.muted) return;
-        this.stopBgm();
-        this.init();
-        if (!this.ctx) return;
-
-        this.bgmPlaying = true;
-        this.bgmStep = 0;
-
-        // BGMテンポ (タイムアタック時は少しアップテンポ)
-        const tempo = isSpeedMode ? 142 : 130;
-        const intervalMs = (60 / tempo) * 1000 / 2; // 8分音符間隔
-
-        // カッコいいサイバーバトル進行 (Am -> F -> G -> Em)
-        const bassNotes = [
-          110, 110, 164.8, 110, // A
-          87.3, 87.3, 130.8, 87.3, // F
-          98, 98, 146.8, 98,    // G
-          82.4, 82.4, 123.5, 82.4  // E
-        ];
-
-        const arpeggioNotes = [
-          440, 523.2, 659.2, 523.2,
-          349.2, 440, 523.2, 440,
-          392, 493.8, 587.3, 493.8,
-          329.6, 392, 493.8, 659.2
-        ];
-
-        this.bgmTimer = setInterval(() => {
-          if (!this.bgmPlaying || this.muted) return;
-
-          const bFreq = bassNotes[this.bgmStep % bassNotes.length];
-          const aFreq = arpeggioNotes[this.bgmStep % arpeggioNotes.length];
-
-          // ベース音（三角波・控えめな音量）
-          this.playTone(bFreq, 'triangle', 0.16, 0.035);
-
-          // アルペジオシンセ（サイバー感のある矩形波）
-          if (this.bgmStep % 2 === 0) {
-            this.playTone(aFreq, 'square', 0.1, 0.018);
-          }
-
-          this.bgmStep++;
-        }, intervalMs);
+        // 現在はBGM無し（SEのみ再生）
+        // 自作のMP3などを使用する場合は、ここにオーディオ再生コードを追加できます
       }
 
       stopBgm() {
-        this.bgmPlaying = false;
-        if (this.bgmTimer) {
-          clearInterval(this.bgmTimer);
-          this.bgmTimer = null;
-        }
+        // 現在はBGM無し
       }
       playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.1) {
         if (this.muted) return;
@@ -1839,7 +1794,7 @@
         dom.timerLabel.innerHTML = '<ruby>残<rt>のこ</rt></ruby>り<ruby>秒<rt>びょう</rt></ruby>';
         dom.timerValue.textContent = State.timerSec;
         dom.modeInfoLabel.innerHTML = '<ruby>撃破数<rt>げきはすう</rt></ruby>';
-        dom.questionProgress.textContent = '0<ruby>体<rt>たい</rt></ruby>';
+        dom.questionProgress.innerHTML = '0 <small style="font-size:0.65em;"><ruby>体<rt>たい</rt></ruby></small>';
         State.timerInterval = setInterval(() => {
           State.timerSec--;
           dom.timerValue.textContent = State.timerSec;
@@ -1910,7 +1865,7 @@
       if (State.mode !== 'attack') {
         dom.questionProgress.textContent = `${State.currentQuestionIdx + 1} / ${State.totalQuestions}`;
       } else {
-        dom.questionProgress.textContent = `${State.correctCount}<ruby>体<rt>たい</rt></ruby>`;
+        dom.questionProgress.innerHTML = `${State.correctCount} <small style="font-size:0.65em;"><ruby>体<rt>たい</rt></ruby></small>`;
       }
     }
 
