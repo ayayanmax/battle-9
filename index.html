@@ -683,14 +683,18 @@
       top: 45%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0.6);
-      padding: 8px 22px;
+      padding: 10px 20px;
       border-radius: 30px;
-      font-size: 1.7rem;
+      font-size: 1.25rem;
       font-weight: 900;
       opacity: 0;
       pointer-events: none;
       z-index: 100;
       transition: all 0.25s ease;
+      white-space: nowrap;
+      max-width: 94%;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
     }
 
     .feedback-toast.correct {
@@ -1146,6 +1150,9 @@
       constructor() {
         this.ctx = null;
         this.muted = false;
+        this.bgmPlaying = false;
+        this.bgmTimer = null;
+        this.bgmStep = 0;
       }
       init() {
         if (!this.ctx) {
@@ -1158,7 +1165,64 @@
       }
       toggleMute() {
         this.muted = !this.muted;
+        if (this.muted) {
+          this.stopBgm();
+        }
         return !this.muted;
+      }
+
+      startBgm(isSpeedMode = false) {
+        if (this.muted) return;
+        this.stopBgm();
+        this.init();
+        if (!this.ctx) return;
+
+        this.bgmPlaying = true;
+        this.bgmStep = 0;
+
+        // BGMテンポ (タイムアタック時は少しアップテンポ)
+        const tempo = isSpeedMode ? 142 : 130;
+        const intervalMs = (60 / tempo) * 1000 / 2; // 8分音符間隔
+
+        // カッコいいサイバーバトル進行 (Am -> F -> G -> Em)
+        const bassNotes = [
+          110, 110, 164.8, 110, // A
+          87.3, 87.3, 130.8, 87.3, // F
+          98, 98, 146.8, 98,    // G
+          82.4, 82.4, 123.5, 82.4  // E
+        ];
+
+        const arpeggioNotes = [
+          440, 523.2, 659.2, 523.2,
+          349.2, 440, 523.2, 440,
+          392, 493.8, 587.3, 493.8,
+          329.6, 392, 493.8, 659.2
+        ];
+
+        this.bgmTimer = setInterval(() => {
+          if (!this.bgmPlaying || this.muted) return;
+
+          const bFreq = bassNotes[this.bgmStep % bassNotes.length];
+          const aFreq = arpeggioNotes[this.bgmStep % arpeggioNotes.length];
+
+          // ベース音（三角波・控えめな音量）
+          this.playTone(bFreq, 'triangle', 0.16, 0.035);
+
+          // アルペジオシンセ（サイバー感のある矩形波）
+          if (this.bgmStep % 2 === 0) {
+            this.playTone(aFreq, 'square', 0.1, 0.018);
+          }
+
+          this.bgmStep++;
+        }, intervalMs);
+      }
+
+      stopBgm() {
+        this.bgmPlaying = false;
+        if (this.bgmTimer) {
+          clearInterval(this.bgmTimer);
+          this.bgmTimer = null;
+        }
       }
       playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.1) {
         if (this.muted) return;
@@ -1271,8 +1335,12 @@
     }
 
     function getExpForNextLevel(level) {
-      // レベルごとの必要EXP（二年生でもテンポよく上がれるように調整）
-      return Math.round(80 * Math.pow(level, 1.25));
+      // レベルごとの必要EXP調整（10問全問正解で約110EXP獲得）
+      // Lv.1: 100 EXP（最初の10問クリアでちょうどLv.2に昇格！）
+      // Lv.2: 約260 EXP（約25問正解＝2〜3回クリアでLv.3へ）
+      // Lv.3: 約420 EXP（約40問正解＝4回クリアでLv.4へ）
+      // Lv.5: 約760 EXP（約80問正解＝8回クリアでLv.6へ）
+      return Math.round(100 + (level - 1) * 120 * Math.pow(level, 0.45));
     }
 
     // --- 敵ロボットのビジュアル生成（多彩なSVG） ---
@@ -1700,6 +1768,7 @@
 
     dom.backToTitleBtn.addEventListener('click', () => {
       clearInterval(State.timerInterval);
+      sound.stopBgm();
       updatePilotStatusUI();
       switchScreen(dom.titleScreen);
     });
@@ -1708,6 +1777,7 @@
       sound.init();
       if (confirm('バトルをやめて、タイトル画面にもどる？')) {
         clearInterval(State.timerInterval);
+        sound.stopBgm();
         updatePilotStatusUI();
         switchScreen(dom.titleScreen);
       }
@@ -1748,6 +1818,7 @@
     function startBattle(mode, dan = 2) {
       sound.init();
       sound.playTone(440, 'sine', 0.1);
+      sound.startBgm(mode === 'attack');
 
       State.mode = mode;
       State.selectedDan = dan;
@@ -1946,7 +2017,8 @@
       sound.playWrong();
       const kukuInfo = KUKU_TABLE[State.qNum1] && KUKU_TABLE[State.qNum1][State.qNum2];
       const hintText = kukuInfo ? `（${kukuInfo.full}）` : '';
-      showToast(`❌ こたえは ${State.correctAnswer} ${hintText}`, 'wrong');
+      // 読み切れるように長め（2.5秒）に表示
+      showToast(`❌ こたえは ${State.correctAnswer} ${hintText}`, 'wrong', 2500);
       updateStatusUI();
       State.inputBuffer = '';
       updateInputDisplay();
@@ -1958,31 +2030,31 @@
     }
 
     let toastTimeout = null;
-    function showToast(text, type) {
+    function showToast(text, type, duration = 800) {
       clearTimeout(toastTimeout);
       dom.feedbackToast.textContent = text;
       dom.feedbackToast.className = `feedback-toast ${type}`;
       toastTimeout = setTimeout(() => {
         dom.feedbackToast.className = 'feedback-toast';
-      }, 900);
+      }, duration);
     }
 
     // --- ゲーム終了・成績集計とレベルアップ計算 ---
     function finishGame() {
       clearInterval(State.timerInterval);
+      sound.stopBgm();
       sound.playFanfare();
 
       const elapsedSec = ((Date.now() - State.startTime) / 1000).toFixed(1);
 
-      // 経験値（EXP）の計算
-      // 基本EXP + コンボボーナス + 正解数ボーナス
-      let gainedExp = State.correctCount * 25;
-      gainedExp += State.maxCombo * 10;
+      // 経験値（EXP）の計算（適正バランス化）
+      let gainedExp = State.correctCount * 8;
+      gainedExp += Math.round(State.maxCombo * 1.5);
       if (State.roundAttempts > 0 && State.correctCount === State.roundAttempts) {
-        gainedExp += 50; // パーフェクトボーナス
+        gainedExp += 15; // パーフェクトボーナス
       }
       if (State.mode === 'attack') {
-        gainedExp += Math.round(State.score * 0.05);
+        gainedExp += Math.round(State.correctCount * 3);
       }
 
       // ユーザーデータの集計・更新
